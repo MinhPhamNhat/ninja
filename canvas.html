@@ -6,13 +6,9 @@
         width: auto;
         border:2px solid #000000;
     }
-    img{
-        height: 100%;
-        width: 100%;
-    }
     </style>
     <body onload="begin()">
-        <canvas id="myCanvas"><img src="bg.jpg"></canvas>
+        <canvas id="myCanvas"></canvas>
     </body>
 
     <script>
@@ -41,11 +37,11 @@
         var pressing = false
 
         var img = new Image();
-        img.src = "./character.jpg"
+        img.src = "https://github.com/MinhPhamNhat/ninja/character.jpg"
         var cloud = new Image();
-        cloud.src = "./cloud.jpg";
+        cloud.src = "https://github.com/MinhPhamNhat/ninja/cloud.jpg";
         var background = new Image();
-        background.src = "./bg.jpg";
+        background.src = "https://github.com/MinhPhamNhat/ninja/bg.jpg";
 
         class Stair{
             pos = 0
