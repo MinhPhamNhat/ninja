@@ -6,12 +6,33 @@
         width: auto;
         border:2px solid #000000;
     }
+    img{
+        display: none;
+    }
     </style>
     <body onload="begin()">
         <canvas id="myCanvas"></canvas>
     </body>
 
     <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        const btnClick = async (btn)=>{
+            btn.src = "btn2.png"
+            draw()
+            await sleep(25)
+            btn.src = "btn3.png"
+            draw()
+            await sleep(25)
+            btn.src = "btn2.png"
+            draw()
+            await sleep(25)
+            btn.src = "btn1.png"
+            draw()
+            await sleep(25)
+        }
+
         const canvas = document.getElementById("myCanvas")
         const ctx = canvas.getContext("2d")
         canvas.width = window.innerWidth;
@@ -20,6 +41,7 @@
         const stair_height = 50
         const stair_padding = 50
         const character_size = 100
+        const btn_size = 200
         const base_stair_x = canvas.width/2-stair_width/2
         const base_stair_y = canvas.height-stair_padding*2
         const frames = 7  
@@ -35,6 +57,7 @@
         var last_stair_pos
         var myReq
         var pressing = false
+        var mobile = false
 
         var img = new Image();
         img.src = "https://github.com/MinhPhamNhat/ninja/blob/main/character.jpg?raw=true"
@@ -42,6 +65,10 @@
         cloud.src = "https://github.com/MinhPhamNhat/ninja/blob/main/cloud.jpg?raw=true";
         var background = new Image();
         background.src = "https://github.com/MinhPhamNhat/ninja/blob/main/bg.jpg?raw=true";
+        var rightBtn = new Image();
+        rightBtn.src = "btn1.png";
+        var leftBtn = new Image();
+        leftBtn.src = "btn1.png";
 
         class Stair{
             pos = 0
@@ -70,6 +97,14 @@
             ctx.restore()
         }
 
+        const drawLeftBtn = () => {
+            ctx.drawImage(leftBtn, 100, canvas.height-btn_size-100, btn_size, btn_size)
+        }
+
+        const drawRightBtn = () => {
+            ctx.drawImage(rightBtn, canvas.width-btn_size-100, canvas.height-btn_size-100, btn_size, btn_size)
+        }
+
         const drawScore = () => {
             ctx.fillStyle = "red";
             ctx.font = "30px Comic Sans MS";
@@ -91,7 +126,7 @@
         }
 
         const drawBG = () => {
-            pat = ctx.createPattern(background, 'no-repeat');
+            var pat = ctx.createPattern(background, "no-repeat")
             ctx.fillStyle = pat
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fill()
@@ -99,12 +134,53 @@
 
         const draw = () => {
             drawBG()
+            if (mobile){
+                drawLeftBtn()
+                drawRightBtn()
+            }
             drawScore()
             drawCharacter()
             drawStairs()
         }
 
+        const btnTouch = () => {
+            canvas.ontouchstart = mouseDown
+        }
+
+
+        function mouseDown(e) {
+            var mouseX = e.targetTouches[0].pageX ;
+            var mouseY = e.targetTouches[0].pageY;
+
+            var btnLeft_x = 100
+            var btnLeft_y = canvas.height-btn_size-100
+            var btnRight_x = canvas.width-btn_size-100
+            var btnRight_y = canvas.height-btn_size-100
+            
+            if (mouseX > btnLeft_x && mouseX < btnLeft_x+btn_size &&
+                mouseY > btnLeft_y && mouseY < btnLeft_y+btn_size){
+                    btnClick(leftBtn)
+                    if (g_stairStack[1].pos - curr_direction === 0){
+                        cancelAnimationFrame(myReq);
+                        curr_direction = -curr_direction
+                        handleStairMove()
+                    }
+                }
+            else if (mouseX > btnRight_x && mouseX < btnRight_x+btn_size &&
+                mouseY > btnRight_y && mouseY < btnRight_y+btn_size){
+                    btnClick(rightBtn)
+                    if ((g_stairStack[1].pos - curr_direction === 2 ||g_stairStack[1].pos - curr_direction === -2)){
+                        cancelAnimationFrame(myReq);
+                        handleStairMove()
+                    }
+            }else{
+                SCORE = 0
+                draw()
+            }
+        }
+        
         const render = () =>{
+            
             for (f of g_stairStack){
                 f.x = getX({xFrom: f.tempX, xTo: f.tempX+last_stair_pos*stair_width})
                 f.y = getY({yFrom: f.tempY, yTo: f.tempY+(stair_height+stair_padding)})
@@ -170,39 +246,59 @@
                 var pos = ((Math.floor(Math.random()*2))?1:(-1))
                 base_stair_pos += pos
             }
-            draw()
-        }
-        
-        const begin = () => {
-            init()
             img.onload = function(){
             }
             cloud.onload = function(){
             }
             background.onload = function(){
             }
-            window.addEventListener('keypress', (e) => {
-                if (!pressing){
-                    if (e.key === 's' && g_stairStack[1].pos - curr_direction === 0){
-                        pressing = true
-                        cancelAnimationFrame(myReq);
-                        curr_direction = -curr_direction
-                        handleStairMove()
-                    }else if (e.key === 'k' && (g_stairStack[1].pos - curr_direction === 2 ||g_stairStack[1].pos - curr_direction === -2)){
-                        pressing = true
-                        cancelAnimationFrame(myReq);
-                        handleStairMove()
-                    }else{
-                        SCORE = 0
-                        draw()
-                    }
+            
+            if (canvas.width<1000){
+                mobile = true
+                rightBtn.onload = function () {
                 }
-            }, false)
+                leftBtn.onload = function () {
+                }
+            }else{
+                mobile = false
+            }
+            draw()
+        }
 
-            window.addEventListener('keyup', () => {
-                pressing = false;
-            }, false)
-           
+        const pcView = () => {
+            mobile = false
+            
+        }
+
+        const begin = () => {
+            init()
+            if (mobile){
+                btnTouch()
+            }else{
+                window.addEventListener('keypress', (e) => {
+                    if (!pressing){
+                        if (e.key === 's' && g_stairStack[1].pos - curr_direction === 0){
+                            pressing = true
+                            cancelAnimationFrame(myReq);
+                            curr_direction = -curr_direction
+                            handleStairMove()
+                        }else if (e.key === 'k' && (g_stairStack[1].pos - curr_direction === 2 ||g_stairStack[1].pos - curr_direction === -2)){
+                            pressing = true
+                            cancelAnimationFrame(myReq);
+                            handleStairMove()
+                        }else{
+                            SCORE = 0
+                            draw()
+                        }
+                    }
+                }, false)
+
+                window.addEventListener('keyup', () => {
+                    pressing = false;
+                }, false)
+                
+            }
+            
         }
         
     </script>
