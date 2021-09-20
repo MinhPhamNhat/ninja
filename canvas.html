@@ -44,6 +44,8 @@
         img.src = "character.jpg"
         var cloud = new Image();
         cloud.src = "cloud.jpg";
+        var background = new Image();
+        background.src = "bg.jpg";
 
         class Stair{
             pos = 0
@@ -93,8 +95,6 @@
         }
 
         const drawBG = () => {
-            var background = new Image();
-            background.src = "bg.jpg";
             pat = ctx.createPattern(background, 'no-repeat');
             ctx.fillStyle = pat
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -182,6 +182,8 @@
             img.onload = function(){
             }
             cloud.onload = function(){
+            }
+            bg.onload = function(){
             }
             window.addEventListener('keypress', (e) => {
                 if (!pressing){
