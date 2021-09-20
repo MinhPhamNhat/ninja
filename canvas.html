@@ -173,6 +173,9 @@
                         cancelAnimationFrame(myReq);
                         curr_direction = -curr_direction
                         handleStairMove()
+                    }else{
+                        SCORE = 0
+                        draw()
                     }
                 }
             else if (mouseX > btnRight_x && mouseX < btnRight_x+btn_size &&
@@ -181,10 +184,10 @@
                     if ((g_stairStack[1].pos - curr_direction === 2 ||g_stairStack[1].pos - curr_direction === -2)){
                         cancelAnimationFrame(myReq);
                         handleStairMove()
+                    }else{
+                        SCORE = 0
+                        draw()
                     }
-            }else{
-                SCORE = 0
-                draw()
             }
         }
         
