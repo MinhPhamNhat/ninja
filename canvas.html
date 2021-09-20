@@ -9,9 +9,12 @@
     img{
         display: none;
     }
+    .disable-dbl-tap-zoom {
+        touch-action: manipulation;
+    }
     </style>
     <body onload="begin()">
-        <canvas id="myCanvas"></canvas>
+        <canvas class="disable-dbl-tap-zoom" id="myCanvas"></canvas>
     </body>
 
     <script>
@@ -19,16 +22,16 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
         const btnClick = async (btn)=>{
-            btn.src = "https://github.com/MinhPhamNhat/ninja/blob/main/btn2.png?raw=true";
+            btn.src = "btn2.png"
             draw()
             await sleep(25)
-            btn.src = "https://github.com/MinhPhamNhat/ninja/blob/main/btn3.png?raw=true";
+            btn.src = "btn3.png"
             draw()
             await sleep(25)
-            btn.src = "https://github.com/MinhPhamNhat/ninja/blob/main/btn2.png?raw=true";
+            btn.src = "btn2.png"
             draw()
             await sleep(25)
-            btn.src = "https://github.com/MinhPhamNhat/ninja/blob/main/btn1.png?raw=true";
+            btn.src = "btn1.png"
             draw()
             await sleep(25)
         }
@@ -60,15 +63,15 @@
         var mobile = false
 
         var img = new Image();
-        img.src = "https://github.com/MinhPhamNhat/ninja/blob/main/character.jpg?raw=true";
+        img.src = "https://github.com/MinhPhamNhat/ninja/blob/main/character.jpg?raw=true"
         var cloud = new Image();
         cloud.src = "https://github.com/MinhPhamNhat/ninja/blob/main/cloud.jpg?raw=true";
         var background = new Image();
         background.src = "https://github.com/MinhPhamNhat/ninja/blob/main/bg.jpg?raw=true";
         var rightBtn = new Image();
-        rightBtn.src = "https://github.com/MinhPhamNhat/ninja/blob/main/btn1.png?raw=true";
+        rightBtn.src = "btn1.png";
         var leftBtn = new Image();
-        leftBtn.src = "https://github.com/MinhPhamNhat/ninja/blob/main/btn1.png?raw=true";
+        leftBtn.src = "btn1.png";
 
         class Stair{
             pos = 0
