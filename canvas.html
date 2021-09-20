@@ -126,7 +126,11 @@
         }
 
         const drawBG = () => {
-            var pat = ctx.createPattern(background, "no-repeat")
+            if (mobile){
+                var pat = ctx.createPattern(background, "repeat")
+            }else{
+                var pat = ctx.createPattern(background, "no-repeat")
+            }
             ctx.fillStyle = pat
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fill()
