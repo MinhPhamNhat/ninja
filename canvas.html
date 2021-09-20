@@ -45,6 +45,8 @@
         const stair_padding = 50
         const character_size = 100
         const btn_size = 200
+        const btn_margin_side = 100
+        const btn_margin_bottom = 400
         const base_stair_x = canvas.width/2-stair_width/2
         const base_stair_y = canvas.height-stair_padding*2
         const frames = 7  
@@ -101,11 +103,11 @@
         }
 
         const drawLeftBtn = () => {
-            ctx.drawImage(leftBtn, 100, canvas.height-btn_size-100, btn_size, btn_size)
+            ctx.drawImage(leftBtn, btn_margin_side, canvas.height-btn_size-btn_margin_bottom, btn_size, btn_size)
         }
 
         const drawRightBtn = () => {
-            ctx.drawImage(rightBtn, canvas.width-btn_size-100, canvas.height-btn_size-100, btn_size, btn_size)
+            ctx.drawImage(rightBtn, canvas.width-btn_size-btn_margin_side, canvas.height-btn_size-btn_margin_bottom, btn_size, btn_size)
         }
 
         const drawScore = () => {
@@ -160,9 +162,9 @@
             var mouseY = e.targetTouches[0].pageY;
 
             var btnLeft_x = 100
-            var btnLeft_y = canvas.height-btn_size-100
-            var btnRight_x = canvas.width-btn_size-100
-            var btnRight_y = canvas.height-btn_size-100
+            var btnLeft_y = canvas.height-btn_size-btn_margin_bottom
+            var btnRight_x = canvas.width-btn_size-btn_margin_side
+            var btnRight_y = canvas.height-btn_size-btn_margin_bottom
             
             if (mouseX > btnLeft_x && mouseX < btnLeft_x+btn_size &&
                 mouseY > btnLeft_y && mouseY < btnLeft_y+btn_size){
@@ -245,7 +247,7 @@
         }
         
         const init = () => {
-            for (y = 0; y < 15; y++){
+            for (y = 0; y < 25; y++){
                 var stair = new Stair(  base_stair_x + (base_stair_pos*stair_width), 
                                         base_stair_y - y*(stair_height+stair_padding),
                                         base_stair_pos)
