@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+    <style>
+    canvas{
+        height: auto;
+        width: auto;
+        border:2px solid #000000;
+    }
+    img{
+        height: 100%;
+        width: 100%;
+    }
+    </style>
+    <body onload="begin()">
+        <canvas id="myCanvas"><img src="bg.jpg"></canvas>
+    </body>
+
+    <script>
+        const canvas = document.getElementById("myCanvas")
+        const ctx = canvas.getContext("2d")
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const stair_width = 150
+        const stair_height = 50
+        const stair_padding = 50
+        const character_size = 100
+        const base_stair_x = canvas.width/2-stair_width/2
+        const base_stair_y = canvas.height-stair_padding*2
+        const frames = 7  
+
+        var SCORE = 0
+        var BEST = 0
+
+        var frame = 1
+        var g_stairStack = []
+        var base_stair_pos = 0
+        var curr_direction = 1
+        var curr_pos = -1
+        var last_stair_pos
+        var myReq
+        var pressing = false
+
+        var img = new Image();
+        img.src = "character.jpg"
+        var cloud = new Image();
+        cloud.src = "cloud.jpg";
+
+        class Stair{
+            pos = 0
+            constructor(x, y, pos){
+                this.x = x
+                this.y = y
+                this.pos = pos
+                this.tempX = x
+                this.tempY = y
+            }
+        }
+
+        const drawStair = (stair) => {
+            ctx.drawImage(cloud, stair.x, stair.y, stair_width, stair_height);   
+        }
+
+        const drawCharacter = () => {
+            ctx.save()
+            if (curr_direction === 1){
+                ctx.drawImage(img, base_stair_x + 25, base_stair_y-character_size, character_size, character_size);
+            }else{
+                ctx.scale(-1,1)
+                ctx.translate(-canvas.width,0); 
+                ctx.drawImage(img, base_stair_x + 25, base_stair_y-character_size, character_size, character_size);
+            }
+            ctx.restore()
+        }
+
+        const drawScore = () => {
+            ctx.fillStyle = "red";
+            ctx.font = "30px Comic Sans MS";
+            ctx.fillText(`SCORE: ${SCORE}`, 10, 50);
+            
+            ctx.fillStyle = "red";
+            ctx.font = "30px Comic Sans MS";
+            ctx.fillText(`BEST: ${BEST}`, 10, 100);
+            
+            ctx.fillStyle = "black";
+            ctx.font = "30px Comic Sans MS";
+            ctx.fillText(`Use [S] to turn and [K] to go straight`, 10, canvas.height-20);
+        }
+
+        const drawStairs = () => {
+            for (f of g_stairStack){
+                drawStair(f)
+            }
+        }
+
+        const drawBG = () => {
+            var background = new Image();
+            background.src = "bg.jpg";
+            pat = ctx.createPattern(background, 'no-repeat');
+            ctx.fillStyle = pat
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fill()
+        }
+
+        const draw = () => {
+            drawBG()
+            drawScore()
+            drawCharacter()
+            drawStairs()
+        }
+
+        const render = () =>{
+            for (f of g_stairStack){
+                f.x = getX({xFrom: f.tempX, xTo: f.tempX+last_stair_pos*stair_width})
+                f.y = getY({yFrom: f.tempY, yTo: f.tempY+(stair_height+stair_padding)})
+            }
+            if (frame < frames) {
+                frame += + 1;
+                requestAnimationFrame(draw)
+                myReq = window.requestAnimationFrame(render)
+            }else{
+                g_stairStack.shift()
+                for (f of g_stairStack){
+                    f.pos += last_stair_pos
+                    f.tempX = f.x
+                    f.tempY = f.y
+                }
+                var last_stair = g_stairStack[g_stairStack.length -1] 
+                var pos = last_stair.pos + ((Math.floor(Math.random()*2))?1:(-1))
+                g_stairStack.push(new Stair(base_stair_x + (pos*stair_width),
+                                            last_stair.y - (stair_height+stair_padding),
+                                            pos))
+                frame = 1
+            }
+        }
+
+        const getEase = (currentProgress, start, distance, steps, power) => {
+            currentProgress /= steps/2;
+            if (currentProgress < 1) {
+                return (distance/2)*(Math.pow(currentProgress, power)) + start;
+            } 
+            currentProgress -= 2;
+            return distance/2*(Math.pow(currentProgress,power)+2) + start;
+        }
+
+        const getX = (params) => {
+            let distance = params.xTo - params.xFrom;
+            let steps = frames;
+            let currentProgress = frame;
+            return getEase(currentProgress, params.xFrom, distance, steps, 3);
+        }
+
+        const getY = (params) => {
+            let distance = params.yTo - params.yFrom;
+            let steps = frames;
+            let currentProgress = frame;
+            return getEase(currentProgress, params.yFrom, distance, steps, 3);
+        }
+
+        const handleStairMove = () => {
+            SCORE += 1
+            if (SCORE > BEST){
+                BEST = SCORE
+            }
+            last_stair_pos = 0 - g_stairStack[1].pos 
+            render()
+        }
+        
+        const init = () => {
+            for (y = 0; y < 15; y++){
+                var stair = new Stair(  base_stair_x + (base_stair_pos*stair_width), 
+                                        base_stair_y - y*(stair_height+stair_padding),
+                                        base_stair_pos)
+                g_stairStack.push(stair)
+                var pos = ((Math.floor(Math.random()*2))?1:(-1))
+                base_stair_pos += pos
+            }
+            draw()
+        }
+        
+        const begin = () => {
+            init()
+            img.onload = function(){
+            }
+            cloud.onload = function(){
+            }
+            window.addEventListener('keypress', (e) => {
+                if (!pressing){
+                    if (e.key === 's' && g_stairStack[1].pos - curr_direction === 0){
+                        pressing = true
+                        cancelAnimationFrame(myReq);
+                        curr_direction = -curr_direction
+                        handleStairMove()
+                    }else if (e.key === 'k' && (g_stairStack[1].pos - curr_direction === 2 ||g_stairStack[1].pos - curr_direction === -2)){
+                        pressing = true
+                        cancelAnimationFrame(myReq);
+                        handleStairMove()
+                    }else{
+                        SCORE = 0
+                        draw()
+                    }
+                }
+            }, false)
+
+            window.addEventListener('keyup', () => {
+                pressing = false;
+            }, false)
+           
+        }
+        
+    </script>
+</html>
